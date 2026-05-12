@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>祈年殿 AR</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #090a14;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+
+    .status {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .status span {
+      max-width: min(520px, calc(100vw - 24px));
+      padding: 10px 14px;
+      color: #fff5d4;
+      background: rgba(8, 9, 20, 0.72);
+      border: 1px solid rgba(216, 177, 106, 0.5);
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body>
+  <div class="status"><span id="statusText">将摄像头对准第一张“星河天”图片。</span></div>
+
+  <a-scene
+    id="arScene"
+    mindar-image="imageTargetSrc: ./assets/targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    loading-screen="enabled: false">
+    <a-assets timeout="30000">
+      <a-asset-item id="tiantanObj" src="./assets/tiantan-centered.obj"></a-asset-item>
+      <a-asset-item id="tiantanMtl" src="./assets/tiantan.mtl"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity id="imageTarget" mindar-image-target="targetIndex: 0">
+      <a-entity
+        id="qiniandianAnchor"
+        position="0.17 0.09 0.012"
+        rotation="-90 0 0">
+        <a-entity
+          id="qiniandianModel"
+          obj-model="obj: #tiantanObj; mtl: #tiantanMtl"
+          scale="0.00000175 0.00000175 0.00000175"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear">
+        </a-entity>
+      </a-entity>
+      <a-circle
+        position="0.17 0.09 0.002"
+        rotation="0 0 0"
+        radius="0.12"
+        color="#d8b16a"
+        opacity="0.16">
+      </a-circle>
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const statusText = document.getElementById("statusText");
+    const imageTarget = document.getElementById("imageTarget");
+    const scene = document.querySelector("a-scene");
+
+    fetch("./assets/targets.mind", { method: "HEAD" }).catch(() => {
+      statusText.textContent = "缺少 assets/targets.mind。请先打开 compile-target.html 生成识别文件。";
+    });
+
+    imageTarget.addEventListener("targetFound", () => {
+      statusText.textContent = "已识别，祈年殿模型正在柱网位置旋转。";
+    });
+
+    imageTarget.addEventListener("targetLost", () => {
+      statusText.textContent = "将摄像头对准第一张“星河天”图片。";
+    });
+
+    scene.addEventListener("arError", () => {
+      statusText.textContent = "摄像头未启动。请用 HTTPS、localhost，或允许浏览器相机权限。";
+    });
+  </script>
+</body>
+</html>

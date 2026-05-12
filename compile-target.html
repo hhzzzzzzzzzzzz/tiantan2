@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>生成 MindAR 识别文件</title>
+  <style>
+    body {
+      margin: 0;
+      color: #fff4d2;
+      background: #111225;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      color: #e0b86d;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 10px 0;
+      line-height: 1.65;
+    }
+
+    button,
+    a[download] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      margin-top: 12px;
+      padding: 0 16px;
+      color: #13131f;
+      background: #e0b86d;
+      border: 0;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    progress {
+      width: 100%;
+      height: 16px;
+      margin: 18px 0 8px;
+      accent-color: #e0b86d;
+    }
+
+    img {
+      width: 100%;
+      margin-top: 18px;
+      border: 1px solid rgba(224, 184, 109, 0.35);
+      border-radius: 8px;
+    }
+
+    code {
+      color: #ffe6a2;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>生成 targets.mind</h1>
+    <p>点击按钮会把 <code>assets/target.png</code> 编译成 MindAR 识别文件。下载后请把文件命名为 <code>targets.mind</code> 并放到 <code>assets/</code> 目录。</p>
+    <button id="compileButton" type="button">生成识别文件</button>
+    <progress id="progress" value="0" max="100"></progress>
+    <p id="message">等待开始。</p>
+    <div id="downloadArea"></div>
+    <img id="targetImage" src="./assets/target.png" alt="AR target" />
+  </main>
+
+  <script type="module">
+    import { Compiler } from "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js";
+
+    const button = document.getElementById("compileButton");
+    const progress = document.getElementById("progress");
+    const message = document.getElementById("message");
+    const downloadArea = document.getElementById("downloadArea");
+    const image = document.getElementById("targetImage");
+
+    async function ensureImageLoaded(img) {
+      if (img.complete && img.naturalWidth > 0) return img;
+      await new Promise((resolve, reject) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", reject, { once: true });
+      });
+      return img;
+    }
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      downloadArea.textContent = "";
+      progress.value = 0;
+      message.textContent = "正在编译，图片较大时需要等一会儿。";
+
+      try {
+        await ensureImageLoaded(image);
+        const compiler = new Compiler();
+        await compiler.compileImageTargets([image], (percent) => {
+          progress.value = Math.max(0, Math.min(100, percent));
+          message.textContent = `编译进度：${Math.round(progress.value)}%`;
+        });
+        const buffer = compiler.exportData();
+        const blob = new Blob([buffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "targets.mind";
+        link.textContent = "下载 targets.mind";
+        downloadArea.appendChild(link);
+        message.textContent = "编译完成。下载后放到 assets/targets.mind。";
+      } catch (error) {
+        console.error(error);
+        message.textContent = "编译失败。请确认通过本地服务器打开本页，而不是直接双击 HTML 文件。";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
