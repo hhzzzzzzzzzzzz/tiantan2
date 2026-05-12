@@ -19,16 +19,28 @@
     <a-light type="ambient" color="#ffffff" intensity="1.25"></a-light>
     <a-light type="directional" color="#fff1c2" intensity="1.45" position="0 1 1"></a-light>
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-    <a-entity id="imageTarget" mindar-image-target="targetIndex: 0"><a-plane src="#targetImg" position="0 0 0" height="0.5" width="1" opacity="0.94"></a-plane><a-entity id="qiniandianAnchor" position="0.17 0.09 0.08" rotation="-90 0 0"><a-entity id="qiniandianModel" obj-model="obj: url(./assets/tiantan-centered.obj); mtl: url(./assets/tiantan.mtl)" scale="0.0000035 0.0000035 0.0000035" animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear"></a-entity></a-entity></a-entity>
+    <a-entity id="imageTarget" mindar-image-target="targetIndex: 0">
+      <a-plane src="#targetImg" position="0 0 0" height="0.5" width="1" opacity="0.94"></a-plane>
+      <a-entity id="qiniandianModel" position="0.17 0.09 0.055" rotation="-90 0 0" scale="0.62 0.62 0.62" animation="property: rotation; to: -90 360 0; loop: true; dur: 9000; easing: linear">
+        <a-cylinder radius="0.06" height="0.018" color="#d8b16a" position="0 0.009 0"></a-cylinder>
+        <a-cylinder radius="0.048" height="0.052" color="#8c2430" position="0 0.044 0"></a-cylinder>
+        <a-torus radius="0.072" radius-tubular="0.006" color="#d8b16a" rotation="90 0 0" position="0 0.078 0"></a-torus>
+        <a-cone radius-bottom="0.078" radius-top="0.038" height="0.035" color="#14365c" position="0 0.095 0"></a-cone>
+        <a-torus radius="0.058" radius-tubular="0.005" color="#d8b16a" rotation="90 0 0" position="0 0.122 0"></a-torus>
+        <a-cone radius-bottom="0.062" radius-top="0.026" height="0.032" color="#14365c" position="0 0.138 0"></a-cone>
+        <a-torus radius="0.039" radius-tubular="0.004" color="#d8b16a" rotation="90 0 0" position="0 0.162 0"></a-torus>
+        <a-cone radius-bottom="0.043" radius-top="0.005" height="0.032" color="#14365c" position="0 0.178 0"></a-cone>
+        <a-sphere radius="0.007" color="#d8b16a" position="0 0.199 0"></a-sphere>
+      </a-entity>
+    </a-entity>
   </a-scene>
   <script>
-    const statusText = document.getElementById("statusText"), scene = document.getElementById("arScene"), target = document.getElementById("imageTarget"), model = document.getElementById("qiniandianModel");
+    const statusText = document.getElementById("statusText"), scene = document.getElementById("arScene"), target = document.getElementById("imageTarget");
     function setStatus(message) { statusText.textContent = message; }
     scene.addEventListener("arReady", () => setStatus("摄像头已启动，请对准第一张“星河天”图片。"));
     scene.addEventListener("arError", () => setStatus("AR 摄像头启动失败。请检查相机权限，或用 Safari/Chrome 打开。"));
     target.addEventListener("targetFound", () => setStatus("已识别，祈年殿模型正在柱网位置旋转。"));
     target.addEventListener("targetLost", () => setStatus("将摄像头对准第一张“星河天”图片。"));
-    model.addEventListener("model-loaded", (event) => { const material = new AFRAME.THREE.MeshStandardMaterial({ color: 0xd8b16a, metalness: 0.08, roughness: 0.62, side: AFRAME.THREE.DoubleSide }); event.detail.model.traverse((node) => { if (node.isMesh) { node.material = material; node.frustumCulled = false; } }); });
   </script>
 </body>
 </html>
