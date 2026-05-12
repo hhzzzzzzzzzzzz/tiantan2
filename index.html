@@ -1,207 +1,25 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>祈年殿 AR</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <style>
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: #090a14;
-      font-family: Arial, "Microsoft YaHei", sans-serif;
-    }
-
-    .status {
-      position: fixed;
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      z-index: 10;
-      display: flex;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .status span {
-      max-width: min(560px, calc(100vw - 24px));
-      padding: 10px 14px;
-      color: #fff5d4;
-      background: rgba(8, 9, 20, 0.74);
-      border: 1px solid rgba(216, 177, 106, 0.5);
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.45;
-      text-align: center;
-      backdrop-filter: blur(8px);
-    }
-
-    .start-panel {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      display: grid;
-      place-items: center;
-      padding: 22px;
-      color: #fff5d4;
-      background:
-        radial-gradient(circle at 50% 18%, rgba(216, 177, 106, 0.16), transparent 32%),
-        #090a14;
-    }
-
-    .start-box {
-      width: min(520px, 100%);
-      text-align: center;
-    }
-
-    .start-box h1 {
-      margin: 0 0 12px;
-      color: #e0b86d;
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 0;
-    }
-
-    .start-box p {
-      margin: 8px 0;
-      font-size: 15px;
-      line-height: 1.65;
-    }
-
-    .start-box button {
-      min-height: 46px;
-      margin-top: 16px;
-      padding: 0 22px;
-      color: #12131f;
-      background: #e0b86d;
-      border: 0;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .warning {
-      display: none;
-      margin-top: 12px;
-      color: #ffe1a1;
-    }
-
-    .is-wechat .warning {
-      display: block;
-    }
-
-    .is-running .start-panel {
-      display: none;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>祈年殿 AR</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#090a14;font-family:Arial,"Microsoft YaHei",sans-serif}.status{position:fixed;left:12px;right:12px;bottom:12px;z-index:10;display:flex;justify-content:center;pointer-events:none}.status span{max-width:min(560px,calc(100vw - 24px));padding:10px 14px;color:#fff5d4;background:rgba(8,9,20,.76);border:1px solid rgba(216,177,106,.5);border-radius:8px;font-size:14px;line-height:1.45;text-align:center;backdrop-filter:blur(8px)}.start-panel{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:22px;color:#fff5d4;background:radial-gradient(circle at 50% 18%,rgba(216,177,106,.16),transparent 32%),#090a14}.start-box{width:min(520px,100%);text-align:center}.start-box h1{margin:0 0 12px;color:#e0b86d;font-size:24px;font-weight:700;letter-spacing:0}.start-box p{margin:8px 0;font-size:15px;line-height:1.65}.start-box button{min-height:46px;margin-top:16px;padding:0 22px;color:#12131f;background:#e0b86d;border:0;border-radius:8px;font-size:16px;font-weight:700}.start-box button:disabled{opacity:.58}.warning{display:none;margin-top:12px;color:#ffe1a1}.is-wechat .warning{display:block}.is-running .start-panel{display:none}
+</style>
 </head>
 <body>
-  <div class="start-panel" id="startPanel">
-    <div class="start-box">
-      <h1>祈年殿 AR</h1>
-      <p>点击按钮启动摄像头，然后扫描第一张“星河天”图片。</p>
-      <p class="warning">当前像是在微信内置浏览器。若启动后仍然黑屏，请点右上角菜单，选择在 Safari 浏览器打开。</p>
-      <button id="startButton" type="button">启动 AR 摄像头</button>
-    </div>
-  </div>
-
-  <div class="status"><span id="statusText">等待启动摄像头。</span></div>
-
-  <a-scene
-    id="arScene"
-    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; filterMinCF: 0.0001; filterBeta: 0.001;"
-    color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-    loading-screen="enabled: false">
-    <a-assets timeout="30000">
-      <a-asset-item id="tiantanObj" src="./assets/tiantan-centered.obj"></a-asset-item>
-      <a-asset-item id="tiantanMtl" src="./assets/tiantan.mtl"></a-asset-item>
-    </a-assets>
-
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <a-entity id="imageTarget" mindar-image-target="targetIndex: 0">
-      <a-entity
-        id="qiniandianAnchor"
-        position="0.17 0.09 0.012"
-        rotation="-90 0 0">
-        <a-entity
-          id="qiniandianModel"
-          obj-model="obj: #tiantanObj; mtl: #tiantanMtl"
-          scale="0.00000175 0.00000175 0.00000175"
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear">
-        </a-entity>
-      </a-entity>
-      <a-circle
-        position="0.17 0.09 0.002"
-        radius="0.12"
-        color="#d8b16a"
-        opacity="0.16">
-      </a-circle>
-    </a-entity>
-  </a-scene>
-
-  <script>
-    const statusText = document.getElementById("statusText");
-    const startButton = document.getElementById("startButton");
-    const imageTarget = document.getElementById("imageTarget");
-    const scene = document.querySelector("a-scene");
-    const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
-
-    if (isWeChat) {
-      document.body.classList.add("is-wechat");
-      statusText.textContent = "微信内置浏览器可能无法启动 AR 摄像头。建议用 Safari 打开。";
-    }
-
-    fetch("./assets/targets.mind", { method: "HEAD" }).catch(() => {
-      statusText.textContent = "缺少 assets/targets.mind，请先生成并上传识别文件。";
-    });
-
-    startButton.addEventListener("click", async () => {
-      startButton.disabled = true;
-      statusText.textContent = "正在请求摄像头权限...";
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        statusText.textContent = "这个浏览器不支持网页摄像头。请用 Safari 或 Chrome 打开。";
-        startButton.disabled = false;
-        return;
-      }
-
-      try {
-        const arSystem = scene.systems["mindar-image-system"];
-        await arSystem.start();
-        document.body.classList.add("is-running");
-        statusText.textContent = "将摄像头对准第一张“星河天”图片。";
-      } catch (error) {
-        console.error(error);
-        statusText.textContent = isWeChat
-          ? "摄像头没有启动。请点右上角菜单，在 Safari 浏览器打开。"
-          : "摄像头没有启动。请允许相机权限后刷新重试。";
-        startButton.disabled = false;
-      }
-    });
-
-    imageTarget.addEventListener("targetFound", () => {
-      statusText.textContent = "已识别，祈年殿模型正在柱网位置旋转。";
-    });
-
-    imageTarget.addEventListener("targetLost", () => {
-      statusText.textContent = "将摄像头对准第一张“星河天”图片。";
-    });
-
-    scene.addEventListener("arError", () => {
-      statusText.textContent = isWeChat
-        ? "微信内置浏览器无法启动摄像头，请用 Safari 打开。"
-        : "摄像头未启动，请确认浏览器相机权限。";
-      startButton.disabled = false;
-    });
-  </script>
+<div class="start-panel"><div class="start-box"><h1>祈年殿 AR</h1><p>点击按钮启动摄像头，然后扫描第一张“星河天”图片。</p><p class="warning">当前像是在微信内置浏览器。若启动后仍然黑屏，请点右上角菜单，选择在 Safari 浏览器打开。</p><button id="startButton" type="button">启动 AR 摄像头</button></div></div>
+<div class="status"><span id="statusText">等待启动摄像头。</span></div>
+<a-scene id="arScene" mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
+<a-assets timeout="30000"><a-asset-item id="tiantanObj" src="./assets/tiantan-centered.obj"></a-asset-item><a-asset-item id="tiantanMtl" src="./assets/tiantan.mtl"></a-asset-item></a-assets>
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<a-entity id="imageTarget" mindar-image-target="targetIndex: 0"><a-entity id="qiniandianAnchor" position="0.17 0.09 0.012" rotation="-90 0 0"><a-entity id="qiniandianModel" obj-model="obj: #tiantanObj; mtl: #tiantanMtl" scale="0.00000175 0.00000175 0.00000175" animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear"></a-entity></a-entity><a-circle position="0.17 0.09 0.002" radius="0.12" color="#d8b16a" opacity="0.16"></a-circle></a-entity>
+</a-scene>
+<script>
+const statusText=document.getElementById("statusText");const startButton=document.getElementById("startButton");const imageTarget=document.getElementById("imageTarget");const scene=document.querySelector("a-scene");const isWeChat=/MicroMessenger/i.test(navigator.userAgent);let arStarted=false;let startTimer=null;function setStatus(t){statusText.textContent=t}function isSceneReady(){return scene.hasLoaded&&scene.systems&&scene.systems["mindar-image-system"]}if(isWeChat){document.body.classList.add("is-wechat");setStatus("微信内置浏览器可能无法启动 AR 摄像头。建议用 Safari 打开。")}fetch("./assets/targets.mind",{method:"HEAD"}).catch(()=>setStatus("缺少 assets/targets.mind，请先生成并上传识别文件。"));scene.addEventListener("loaded",()=>{if(!isWeChat)setStatus("点击按钮启动摄像头。")});scene.addEventListener("arReady",()=>{arStarted=true;clearTimeout(startTimer);document.body.classList.add("is-running");setStatus("将摄像头对准第一张“星河天”图片。")});startButton.addEventListener("click",async()=>{startButton.disabled=true;setStatus("正在检查浏览器摄像头权限...");if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setStatus("这个浏览器不支持网页摄像头。请用 Safari 或 Chrome 打开。");startButton.disabled=false;return}try{const testStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:"environment"}});testStream.getTracks().forEach(track=>track.stop());setStatus("摄像头权限已通过，正在启动 AR...");if(!isSceneReady()){setStatus("AR 场景还没加载完，请等 2 秒后再点一次。");startButton.disabled=false;return}scene.systems["mindar-image-system"].start();clearTimeout(startTimer);startTimer=setTimeout(()=>{if(!arStarted){setStatus("摄像头权限通过了，但 AR 没启动完成。请刷新后重试，或换 Safari/Chrome 打开。");startButton.disabled=false}},10000)}catch(error){console.error(error);setStatus(isWeChat?"摄像头没有启动。请点右上角菜单，在 Safari 浏览器打开。":"摄像头没有启动。请允许相机权限后刷新重试。");startButton.disabled=false}});imageTarget.addEventListener("targetFound",()=>setStatus("已识别，祈年殿模型正在柱网位置旋转。"));imageTarget.addEventListener("targetLost",()=>setStatus("将摄像头对准第一张“星河天”图片。"));scene.addEventListener("arError",()=>{clearTimeout(startTimer);setStatus(isWeChat?"微信内置浏览器无法启动摄像头，请用 Safari 打开。":"摄像头未启动，请确认浏览器相机权限。");startButton.disabled=false});
+</script>
 </body>
 </html>
