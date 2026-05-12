@@ -29,10 +29,10 @@
     }
 
     .status span {
-      max-width: min(520px, calc(100vw - 24px));
+      max-width: min(560px, calc(100vw - 24px));
       padding: 10px 14px;
       color: #fff5d4;
-      background: rgba(8, 9, 20, 0.72);
+      background: rgba(8, 9, 20, 0.74);
       border: 1px solid rgba(216, 177, 106, 0.5);
       border-radius: 8px;
       font-size: 14px;
@@ -40,14 +40,81 @@
       text-align: center;
       backdrop-filter: blur(8px);
     }
+
+    .start-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      color: #fff5d4;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(216, 177, 106, 0.16), transparent 32%),
+        #090a14;
+    }
+
+    .start-box {
+      width: min(520px, 100%);
+      text-align: center;
+    }
+
+    .start-box h1 {
+      margin: 0 0 12px;
+      color: #e0b86d;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .start-box p {
+      margin: 8px 0;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .start-box button {
+      min-height: 46px;
+      margin-top: 16px;
+      padding: 0 22px;
+      color: #12131f;
+      background: #e0b86d;
+      border: 0;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .warning {
+      display: none;
+      margin-top: 12px;
+      color: #ffe1a1;
+    }
+
+    .is-wechat .warning {
+      display: block;
+    }
+
+    .is-running .start-panel {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div class="status"><span id="statusText">将摄像头对准第一张“星河天”图片。</span></div>
+  <div class="start-panel" id="startPanel">
+    <div class="start-box">
+      <h1>祈年殿 AR</h1>
+      <p>点击按钮启动摄像头，然后扫描第一张“星河天”图片。</p>
+      <p class="warning">当前像是在微信内置浏览器。若启动后仍然黑屏，请点右上角菜单，选择在 Safari 浏览器打开。</p>
+      <button id="startButton" type="button">启动 AR 摄像头</button>
+    </div>
+  </div>
+
+  <div class="status"><span id="statusText">等待启动摄像头。</span></div>
 
   <a-scene
     id="arScene"
-    mindar-image="imageTargetSrc: ./assets/targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;"
+    mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; filterMinCF: 0.0001; filterBeta: 0.001;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights"
     vr-mode-ui="enabled: false"
@@ -74,7 +141,6 @@
       </a-entity>
       <a-circle
         position="0.17 0.09 0.002"
-        rotation="0 0 0"
         radius="0.12"
         color="#d8b16a"
         opacity="0.16">
@@ -84,11 +150,42 @@
 
   <script>
     const statusText = document.getElementById("statusText");
+    const startButton = document.getElementById("startButton");
     const imageTarget = document.getElementById("imageTarget");
     const scene = document.querySelector("a-scene");
+    const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+
+    if (isWeChat) {
+      document.body.classList.add("is-wechat");
+      statusText.textContent = "微信内置浏览器可能无法启动 AR 摄像头。建议用 Safari 打开。";
+    }
 
     fetch("./assets/targets.mind", { method: "HEAD" }).catch(() => {
-      statusText.textContent = "缺少 assets/targets.mind。请先打开 compile-target.html 生成识别文件。";
+      statusText.textContent = "缺少 assets/targets.mind，请先生成并上传识别文件。";
+    });
+
+    startButton.addEventListener("click", async () => {
+      startButton.disabled = true;
+      statusText.textContent = "正在请求摄像头权限...";
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        statusText.textContent = "这个浏览器不支持网页摄像头。请用 Safari 或 Chrome 打开。";
+        startButton.disabled = false;
+        return;
+      }
+
+      try {
+        const arSystem = scene.systems["mindar-image-system"];
+        await arSystem.start();
+        document.body.classList.add("is-running");
+        statusText.textContent = "将摄像头对准第一张“星河天”图片。";
+      } catch (error) {
+        console.error(error);
+        statusText.textContent = isWeChat
+          ? "摄像头没有启动。请点右上角菜单，在 Safari 浏览器打开。"
+          : "摄像头没有启动。请允许相机权限后刷新重试。";
+        startButton.disabled = false;
+      }
     });
 
     imageTarget.addEventListener("targetFound", () => {
@@ -100,7 +197,10 @@
     });
 
     scene.addEventListener("arError", () => {
-      statusText.textContent = "摄像头未启动。请用 HTTPS、localhost，或允许浏览器相机权限。";
+      statusText.textContent = isWeChat
+        ? "微信内置浏览器无法启动摄像头，请用 Safari 打开。"
+        : "摄像头未启动，请确认浏览器相机权限。";
+      startButton.disabled = false;
     });
   </script>
 </body>
