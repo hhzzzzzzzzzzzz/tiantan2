@@ -1,25 +1,55 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>祈年殿 AR</title>
-<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<style>
-html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#090a14;font-family:Arial,"Microsoft YaHei",sans-serif}.status{position:fixed;left:12px;right:12px;bottom:12px;z-index:10;display:flex;justify-content:center;pointer-events:none}.status span{max-width:min(560px,calc(100vw - 24px));padding:10px 14px;color:#fff5d4;background:rgba(8,9,20,.76);border:1px solid rgba(216,177,106,.5);border-radius:8px;font-size:14px;line-height:1.45;text-align:center;backdrop-filter:blur(8px)}.start-panel{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:22px;color:#fff5d4;background:radial-gradient(circle at 50% 18%,rgba(216,177,106,.16),transparent 32%),#090a14}.start-box{width:min(520px,100%);text-align:center}.start-box h1{margin:0 0 12px;color:#e0b86d;font-size:24px;font-weight:700;letter-spacing:0}.start-box p{margin:8px 0;font-size:15px;line-height:1.65}.start-box button{min-height:46px;margin-top:16px;padding:0 22px;color:#12131f;background:#e0b86d;border:0;border-radius:8px;font-size:16px;font-weight:700}.start-box button:disabled{opacity:.58}.warning{display:none;margin-top:12px;color:#ffe1a1}.is-wechat .warning{display:block}.is-running .start-panel{display:none}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Qiniandian AR</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #090a14; font-family: Arial, "Microsoft YaHei", sans-serif; }
+    .status { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 10; display: flex; justify-content: center; pointer-events: none; }
+    .status span, .panel-status { max-width: min(560px, calc(100vw - 24px)); padding: 10px 14px; color: #fff5d4; background: rgba(8, 9, 20, 0.78); border: 1px solid rgba(216, 177, 106, 0.5); border-radius: 8px; font-size: 14px; line-height: 1.45; text-align: center; backdrop-filter: blur(8px); }
+    .start-panel { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 22px; color: #fff5d4; background: radial-gradient(circle at 50% 18%, rgba(216, 177, 106, 0.16), transparent 32%), #090a14; }
+    .start-box { width: min(520px, 100%); text-align: center; }
+    .start-box h1 { margin: 0 0 12px; color: #e0b86d; font-size: 24px; font-weight: 700; letter-spacing: 0; }
+    .start-box p { margin: 8px 0; font-size: 15px; line-height: 1.65; }
+    .start-box button { min-height: 46px; margin-top: 16px; padding: 0 22px; color: #12131f; background: #e0b86d; border: 0; border-radius: 8px; font-size: 16px; font-weight: 700; touch-action: manipulation; }
+    .start-box button:disabled { opacity: 0.58; }
+    .panel-status { min-height: 42px; margin: 14px auto 0; box-sizing: border-box; }
+    .warning { display: none; margin-top: 12px; color: #ffe1a1; }
+    .is-wechat .warning { display: block; }
+    .is-running .start-panel { display: none; }
+  </style>
 </head>
 <body>
-<div class="start-panel"><div class="start-box"><h1>祈年殿 AR</h1><p>点击按钮启动摄像头，然后扫描第一张“星河天”图片。</p><p class="warning">当前像是在微信内置浏览器。若启动后仍然黑屏，请点右上角菜单，选择在 Safari 浏览器打开。</p><button id="startButton" type="button">启动 AR 摄像头</button></div></div>
-<div class="status"><span id="statusText">等待启动摄像头。</span></div>
-<a-scene id="arScene" mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
-<a-assets timeout="30000"><a-asset-item id="tiantanObj" src="./assets/tiantan-centered.obj"></a-asset-item><a-asset-item id="tiantanMtl" src="./assets/tiantan.mtl"></a-asset-item></a-assets>
-<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-<a-entity id="imageTarget" mindar-image-target="targetIndex: 0"><a-entity id="qiniandianAnchor" position="0.17 0.09 0.012" rotation="-90 0 0"><a-entity id="qiniandianModel" obj-model="obj: #tiantanObj; mtl: #tiantanMtl" scale="0.00000175 0.00000175 0.00000175" animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear"></a-entity></a-entity><a-circle position="0.17 0.09 0.002" radius="0.12" color="#d8b16a" opacity="0.16"></a-circle></a-entity>
-</a-scene>
-<script>
-const statusText=document.getElementById("statusText");const startButton=document.getElementById("startButton");const imageTarget=document.getElementById("imageTarget");const scene=document.querySelector("a-scene");const isWeChat=/MicroMessenger/i.test(navigator.userAgent);let arStarted=false;let startTimer=null;function setStatus(t){statusText.textContent=t}function isSceneReady(){return scene.hasLoaded&&scene.systems&&scene.systems["mindar-image-system"]}if(isWeChat){document.body.classList.add("is-wechat");setStatus("微信内置浏览器可能无法启动 AR 摄像头。建议用 Safari 打开。")}fetch("./assets/targets.mind",{method:"HEAD"}).catch(()=>setStatus("缺少 assets/targets.mind，请先生成并上传识别文件。"));scene.addEventListener("loaded",()=>{if(!isWeChat)setStatus("点击按钮启动摄像头。")});scene.addEventListener("arReady",()=>{arStarted=true;clearTimeout(startTimer);document.body.classList.add("is-running");setStatus("将摄像头对准第一张“星河天”图片。")});startButton.addEventListener("click",async()=>{startButton.disabled=true;setStatus("正在检查浏览器摄像头权限...");if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setStatus("这个浏览器不支持网页摄像头。请用 Safari 或 Chrome 打开。");startButton.disabled=false;return}try{const testStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:"environment"}});testStream.getTracks().forEach(track=>track.stop());setStatus("摄像头权限已通过，正在启动 AR...");if(!isSceneReady()){setStatus("AR 场景还没加载完，请等 2 秒后再点一次。");startButton.disabled=false;return}scene.systems["mindar-image-system"].start();clearTimeout(startTimer);startTimer=setTimeout(()=>{if(!arStarted){setStatus("摄像头权限通过了，但 AR 没启动完成。请刷新后重试，或换 Safari/Chrome 打开。");startButton.disabled=false}},10000)}catch(error){console.error(error);setStatus(isWeChat?"摄像头没有启动。请点右上角菜单，在 Safari 浏览器打开。":"摄像头没有启动。请允许相机权限后刷新重试。");startButton.disabled=false}});imageTarget.addEventListener("targetFound",()=>setStatus("已识别，祈年殿模型正在柱网位置旋转。"));imageTarget.addEventListener("targetLost",()=>setStatus("将摄像头对准第一张“星河天”图片。"));scene.addEventListener("arError",()=>{clearTimeout(startTimer);setStatus(isWeChat?"微信内置浏览器无法启动摄像头，请用 Safari 打开。":"摄像头未启动，请确认浏览器相机权限。");startButton.disabled=false});
-</script>
+  <div class="start-panel">
+    <div class="start-box">
+      <h1>&#31048;&#24180;&#27583; AR</h1>
+      <p>&#28857;&#20987;&#25353;&#38062;&#21551;&#21160;&#25668;&#20687;&#22836;&#65292;&#28982;&#21518;&#25195;&#25551;&#31532;&#19968;&#24352;&#8220;&#26143;&#27827;&#22825;&#8221;&#22270;&#29255;&#12290;</p>
+      <p class="warning">&#24403;&#21069;&#26159;&#24494;&#20449;&#20869;&#32622;&#27983;&#35272;&#22120;&#12290;&#22914;&#26524;&#25353;&#38062;&#26080;&#21453;&#24212;&#65292;&#35831;&#28857;&#21491;&#19978;&#35282;&#33756;&#21333;&#65292;&#36873;&#25321;&#22312; Safari &#25171;&#24320;&#12290;</p>
+      <button id="startButton" type="button">&#21551;&#21160; AR &#25668;&#20687;&#22836;</button>
+      <p id="panelStatus" class="panel-status">&#31561;&#24453;&#28857;&#20987;&#25353;&#38062;&#12290;</p>
+    </div>
+  </div>
+  <div class="status"><span id="statusText">&#31561;&#24453;&#21551;&#21160;&#25668;&#20687;&#22836;&#12290;</span></div>
+  <a-scene id="arScene" mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
+    <a-assets timeout="30000"><a-asset-item id="tiantanObj" src="./assets/tiantan-centered.obj"></a-asset-item><a-asset-item id="tiantanMtl" src="./assets/tiantan.mtl"></a-asset-item></a-assets>
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-entity id="imageTarget" mindar-image-target="targetIndex: 0"><a-entity id="qiniandianAnchor" position="0.17 0.09 0.012" rotation="-90 0 0"><a-entity id="qiniandianModel" obj-model="obj: #tiantanObj; mtl: #tiantanMtl" scale="0.00000175 0.00000175 0.00000175" animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear"></a-entity></a-entity><a-circle position="0.17 0.09 0.002" radius="0.12" color="#d8b16a" opacity="0.16"></a-circle></a-entity>
+  </a-scene>
+  <script>
+    const text = { waitClick: "\u7b49\u5f85\u70b9\u51fb\u6309\u94ae\u3002", wechat: "\u68c0\u6d4b\u5230\u5fae\u4fe1\u5185\u7f6e\u6d4f\u89c8\u5668\u3002\u5982\u679c\u6309\u94ae\u65e0\u53cd\u5e94\uff0c\u8bf7\u70b9\u53f3\u4e0a\u89d2\u83dc\u5355\uff0c\u5728 Safari \u6253\u5f00\u3002", missing: "\u7f3a\u5c11 assets/targets.mind\uff0c\u8bf7\u5148\u751f\u6210\u5e76\u4e0a\u4f20\u8bc6\u522b\u6587\u4ef6\u3002", loaded: "\u70b9\u51fb\u6309\u94ae\u542f\u52a8\u6444\u50cf\u5934\u3002", clicked: "\u6309\u94ae\u5df2\u89e6\u53d1\uff0c\u6b63\u5728\u68c0\u67e5\u6444\u50cf\u5934\u6743\u9650...", unsupported: "\u8fd9\u4e2a\u6d4f\u89c8\u5668\u4e0d\u652f\u6301\u7f51\u9875\u6444\u50cf\u5934\u3002\u8bf7\u7528 Safari \u6216 Chrome \u6253\u5f00\u3002", cameraOk: "\u6444\u50cf\u5934\u6743\u9650\u5df2\u901a\u8fc7\uff0c\u6b63\u5728\u542f\u52a8 AR...", sceneWait: "AR \u573a\u666f\u8fd8\u6ca1\u52a0\u8f7d\u5b8c\uff0c\u8bf7\u7b49 2 \u79d2\u540e\u518d\u70b9\u4e00\u6b21\u3002", timeout: "\u6444\u50cf\u5934\u6743\u9650\u901a\u8fc7\u4e86\uff0c\u4f46 AR \u6ca1\u542f\u52a8\u5b8c\u6210\u3002\u8bf7\u5237\u65b0\u540e\u91cd\u8bd5\uff0c\u6216\u6362 Safari/Chrome \u6253\u5f00\u3002", cameraFailWechat: "\u6444\u50cf\u5934\u6ca1\u6709\u542f\u52a8\u3002\u8bf7\u70b9\u53f3\u4e0a\u89d2\u83dc\u5355\uff0c\u5728 Safari \u6253\u5f00\u3002", cameraFail: "\u6444\u50cf\u5934\u6ca1\u6709\u542f\u52a8\u3002\u8bf7\u5141\u8bb8\u76f8\u673a\u6743\u9650\u540e\u5237\u65b0\u91cd\u8bd5\u3002", scan: "\u5c06\u6444\u50cf\u5934\u5bf9\u51c6\u7b2c\u4e00\u5f20\u201c\u661f\u6cb3\u5929\u201d\u56fe\u7247\u3002", found: "\u5df2\u8bc6\u522b\uff0c\u7948\u5e74\u6bbf\u6a21\u578b\u6b63\u5728\u67f1\u7f51\u4f4d\u7f6e\u65cb\u8f6c\u3002" };
+    const statusText = document.getElementById("statusText"); const panelStatus = document.getElementById("panelStatus"); const startButton = document.getElementById("startButton"); const imageTarget = document.getElementById("imageTarget"); const scene = document.getElementById("arScene"); const isWeChat = /MicroMessenger/i.test(navigator.userAgent); let arStarted = false; let startBusy = false; let startTimer = null;
+    function setStatus(message) { statusText.textContent = message; panelStatus.textContent = message; }
+    function isSceneReady() { return scene.hasLoaded && scene.systems && scene.systems["mindar-image-system"]; }
+    if (isWeChat) { document.body.classList.add("is-wechat"); setStatus(text.wechat); } else { setStatus(text.waitClick); }
+    fetch("./assets/targets.mind", { method: "HEAD" }).catch(() => setStatus(text.missing));
+    scene.addEventListener("loaded", () => { if (!isWeChat) setStatus(text.loaded); });
+    scene.addEventListener("arReady", () => { arStarted = true; clearTimeout(startTimer); document.body.classList.add("is-running"); setStatus(text.scan); });
+    async function startAR() { if (startBusy) return; startBusy = true; startButton.disabled = true; setStatus(text.clicked); if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setStatus(text.unsupported); startButton.disabled = false; startBusy = false; return; } try { const testStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: "environment" } }); testStream.getTracks().forEach((track) => track.stop()); setStatus(text.cameraOk); if (!isSceneReady()) { setStatus(text.sceneWait); startButton.disabled = false; startBusy = false; return; } scene.systems["mindar-image-system"].start(); clearTimeout(startTimer); startTimer = setTimeout(() => { if (!arStarted) { setStatus(text.timeout); startButton.disabled = false; startBusy = false; } }, 10000); } catch (error) { console.error(error); setStatus(isWeChat ? text.cameraFailWechat : text.cameraFail); startButton.disabled = false; startBusy = false; } }
+    startButton.addEventListener("click", startAR); startButton.addEventListener("touchend", (event) => { event.preventDefault(); startAR(); }, { passive: false });
+    imageTarget.addEventListener("targetFound", () => setStatus(text.found)); imageTarget.addEventListener("targetLost", () => setStatus(text.scan)); scene.addEventListener("arError", () => { clearTimeout(startTimer); setStatus(isWeChat ? text.cameraFailWechat : text.cameraFail); startButton.disabled = false; startBusy = false; });
+  </script>
 </body>
 </html>
