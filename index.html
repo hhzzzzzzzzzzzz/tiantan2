@@ -4,41 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Qiniandian AR</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <style>
-    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #090a14; font-family: Arial, "Microsoft YaHei", sans-serif; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; font-family: Arial, "Microsoft YaHei", sans-serif; }
     .status { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 30; display: flex; justify-content: center; pointer-events: none; }
-    .status span, .panel-status { max-width: min(560px, calc(100vw - 24px)); padding: 10px 14px; color: #fff5d4; background: rgba(8, 9, 20, 0.78); border: 1px solid rgba(216, 177, 106, 0.5); border-radius: 8px; font-size: 14px; line-height: 1.45; text-align: center; }
-    .start-panel { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 22px; color: #fff5d4; background: radial-gradient(circle at 50% 18%, rgba(216,177,106,.16), transparent 32%), #090a14; }
-    .start-box { width: min(520px, 100%); text-align: center; }
-    .start-box h1 { margin: 0 0 12px; color: #e0b86d; font-size: 24px; font-weight: 700; letter-spacing: 0; }
-    .start-box p { margin: 8px 0; font-size: 15px; line-height: 1.65; }
-    .start-box button { min-height: 46px; margin-top: 16px; padding: 0 22px; color: #12131f; background: #e0b86d; border: 0; border-radius: 8px; font-size: 16px; font-weight: 700; touch-action: manipulation; }
-    .start-box button:disabled { opacity: .58; }
-    .panel-status { min-height: 42px; margin: 14px auto 0; box-sizing: border-box; }
-    .warning { display: none; margin-top: 12px; color: #ffe1a1; }
-    .is-wechat .warning { display: block; }
-    .is-running .start-panel { display: none; }
+    .status span { max-width: min(620px, calc(100vw - 24px)); padding: 10px 14px; color: #fff5d4; background: rgba(8, 9, 20, 0.78); border: 1px solid rgba(216, 177, 106, 0.55); border-radius: 8px; font-size: 14px; line-height: 1.45; text-align: center; }
   </style>
 </head>
 <body>
-  <div class="start-panel"><div class="start-box"><h1>&#31048;&#24180;&#27583; AR</h1><p>&#28857;&#20987;&#25353;&#38062;&#21551;&#21160;&#25668;&#20687;&#22836;&#65292;&#28982;&#21518;&#25195;&#25551;&#31532;&#19968;&#24352;&#8220;&#26143;&#27827;&#22825;&#8221;&#22270;&#29255;&#12290;</p><p class="warning">&#24403;&#21069;&#26159;&#24494;&#20449;&#20869;&#32622;&#27983;&#35272;&#22120;&#12290;&#22914;&#26524;&#19968;&#30452;&#36229;&#26102;&#65292;&#35831;&#28857;&#21491;&#19978;&#35282;&#33756;&#21333;&#65292;&#22312; Safari &#25171;&#24320;&#12290;</p><button id="startButton" type="button">&#21551;&#21160; AR &#25668;&#20687;&#22836;</button><p id="panelStatus" class="panel-status">&#31561;&#24453;&#28857;&#20987;&#25353;&#38062;&#12290;</p></div></div>
-  <div class="status"><span id="statusText">&#31561;&#24453;&#21551;&#21160;&#25668;&#20687;&#22836;&#12290;</span></div>
-  <a-scene id="arScene" mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="alpha: true; colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
-    <a-assets timeout="5000"><img id="targetImg" src="./assets/target.png"></a-assets>
-    <a-light type="ambient" color="#ffffff" intensity="1.2"></a-light>
-    <a-light type="directional" color="#fff1c2" intensity="1.4" position="0 1 1"></a-light>
+  <div class="status"><span id="statusText">&#27491;&#22312;&#21551;&#21160; AR &#25668;&#20687;&#22836;...</span></div>
+  <a-scene id="arScene" mindar-image="imageTargetSrc: ./assets/targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="alpha: true; colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-assets timeout="10000"><img id="targetImg" src="./assets/target.png"></a-assets>
+    <a-light type="ambient" color="#ffffff" intensity="1.25"></a-light>
+    <a-light type="directional" color="#fff1c2" intensity="1.45" position="0 1 1"></a-light>
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-    <a-entity id="imageTarget" mindar-image-target="targetIndex: 0"><a-plane src="#targetImg" position="0 0 -0.004" height="0.5" width="1" opacity="0.96"></a-plane><a-entity id="qiniandianAnchor" position="0.17 0.09 0.05" rotation="-90 0 0"><a-entity id="qiniandianModel" obj-model="obj: url(./assets/tiantan-centered.obj); mtl: url(./assets/tiantan.mtl)" scale="0.000003 0.000003 0.000003" animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear"></a-entity></a-entity></a-entity>
+    <a-entity id="imageTarget" mindar-image-target="targetIndex: 0"><a-plane src="#targetImg" position="0 0 0" height="0.5" width="1" opacity="0.94"></a-plane><a-entity id="qiniandianAnchor" position="0.17 0.09 0.08" rotation="-90 0 0"><a-entity id="qiniandianModel" obj-model="obj: url(./assets/tiantan-centered.obj); mtl: url(./assets/tiantan.mtl)" scale="0.0000035 0.0000035 0.0000035" animation="property: rotation; to: 0 360 0; loop: true; dur: 9000; easing: linear"></a-entity></a-entity></a-entity>
   </a-scene>
-<script>
-const T={wechat:"检测到微信内置浏览器。如果一直超时，请点右上角菜单，在 Safari 打开。",ready:"页面已就绪，请点击按钮启动。",starting:"按钮已触发，正在由 MindAR 启动摄像头...",nosys:"AR 系统还在初始化，请等 2 秒再点。",timeout:"AR 启动超时。若顶部有绿色摄像头点，请用右上角菜单在 Safari 打开。",scan:"摄像头已启动，请对准第一张“星河天”图片。",found:"已识别，祈年殿模型正在柱网位置旋转。",fail:"摄像头未启动。请允许相机权限，或在 Safari 打开。"};
-const scene=document.getElementById("arScene"),btn=document.getElementById("startButton"),panel=document.getElementById("panelStatus"),status=document.getElementById("statusText"),target=document.getElementById("imageTarget"),model=document.getElementById("qiniandianModel"),isWeChat=/MicroMessenger/i.test(navigator.userAgent);let busy=false,ok=false,timer=null;function msg(s){panel.textContent=s;status.textContent=s}if(isWeChat){document.body.classList.add("is-wechat");msg(T.wechat)}else msg(T.ready);
-model.addEventListener("model-loaded",e=>{const mat=new AFRAME.THREE.MeshStandardMaterial({color:0xd8b16a,metalness:.1,roughness:.62,side:AFRAME.THREE.DoubleSide});e.detail.model.traverse(n=>{if(n.isMesh){n.material=mat;n.frustumCulled=false}})});
-scene.addEventListener("loaded",()=>msg(isWeChat?T.wechat:T.ready));scene.addEventListener("arReady",()=>{ok=true;clearTimeout(timer);document.body.classList.add("is-running");msg(T.scan)});scene.addEventListener("arError",()=>{clearTimeout(timer);busy=false;btn.disabled=false;msg(T.fail)});target.addEventListener("targetFound",()=>msg(T.found));target.addEventListener("targetLost",()=>msg(T.scan));
-function start(){if(busy)return;busy=true;ok=false;btn.disabled=true;msg(T.starting);const sys=scene.systems&&scene.systems["mindar-image-system"];if(!sys){busy=false;btn.disabled=false;msg(T.nosys);return}try{sys.start()}catch(e){console.error(e);busy=false;btn.disabled=false;msg(T.fail);return}clearTimeout(timer);timer=setTimeout(()=>{if(!ok){busy=false;btn.disabled=false;msg(T.timeout)}},15000)}
-btn.addEventListener("click",start);btn.addEventListener("touchend",e=>{e.preventDefault();start()},{passive:false});
-</script>
+  <script>
+    const statusText = document.getElementById("statusText"), scene = document.getElementById("arScene"), target = document.getElementById("imageTarget"), model = document.getElementById("qiniandianModel");
+    function setStatus(message) { statusText.textContent = message; }
+    scene.addEventListener("arReady", () => setStatus("摄像头已启动，请对准第一张“星河天”图片。"));
+    scene.addEventListener("arError", () => setStatus("AR 摄像头启动失败。请检查相机权限，或用 Safari/Chrome 打开。"));
+    target.addEventListener("targetFound", () => setStatus("已识别，祈年殿模型正在柱网位置旋转。"));
+    target.addEventListener("targetLost", () => setStatus("将摄像头对准第一张“星河天”图片。"));
+    model.addEventListener("model-loaded", (event) => { const material = new AFRAME.THREE.MeshStandardMaterial({ color: 0xd8b16a, metalness: 0.08, roughness: 0.62, side: AFRAME.THREE.DoubleSide }); event.detail.model.traverse((node) => { if (node.isMesh) { node.material = material; node.frustumCulled = false; } }); });
+  </script>
 </body>
 </html>
